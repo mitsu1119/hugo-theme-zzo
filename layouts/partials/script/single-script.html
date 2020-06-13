@@ -29,37 +29,26 @@
   <script defer src="{{ $js.flowchartjs.url }}" integrity="{{ $js.flowchartjs.sri }}" crossorigin="anonymous"></script>
 {{ end }}
 
-{{ if in .Params.Libraries "mathjax" }}
-  <script type="text/javascript" async src="{{ $js.mathjax.url }}?config=TeX-AMS-MML_HTMLorMML">
-    MathJax.Hub.Config({
-      tex2jax: {
-        inlineMath: [['$', '$'], ['\\(', '\\)']],
-        displayMath: [['$$', '$$']],
-        processEscapes: true,
-        processEnvironments: true,
-        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre'],
-        TeX: {
-          equationNumbers: { autoNumber: "AMS" },
-          extensions: ["AMSmath.js", "AMSsymbols.js"]
-        }
-      }
-    });
-    MathJax.Hub.Queue(function () {
-      // Fix <code> tags after MathJax finishes running. This is a
-      // hack to overcome a shortcoming of Markdown. Discussion at
-      // https://github.com/mojombo/jekyll/issues/199
-      var all = MathJax.Hub.getAllJax(), i;
-      for (i = 0; i < all.length; i += 1) {
-        all[i].SourceElement().parentNode.className += ' has-jax';
-      }
-    });
-
-    MathJax.Hub.Config({
-      // Autonumbering by mathjax
-      TeX: { equationNumbers: { autoNumber: "AMS" } }
-    });
+<!-- Mathjax -->
+{{- if and (or .Params.mathjax (and .Site.Params.mathjax (ne .Params.mathjax false))) (or .IsPage .IsHome) }}
+  <script type="text/javascript">
+    window.MathJax = {
+      {{ if or .Params.mathjaxEnableSingleDollar (and .Site.Params.mathjaxEnableSingleDollar (ne .Params.mathjaxEnableSingleDollar false)) -}}
+        tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]},
+      {{ end -}}
+      {{ if or .Params.mathjaxEnableAutoNumber (and .Site.Params.mathjaxEnableAutoNumber (ne .Params.mathjaxEnableAutoNumber false)) -}}
+        TeX: {equationNumbers: {autoNumber: "AMS"}},
+      {{ end -}}
+      showProcessingMessages: false,
+      messageStyle: 'none'
+    };
   </script>
-{{ end }}
+  {{ if .Site.Params.mathjaxUseLocalFiles -}}
+    <script type="text/javascript" async src="{{ "lib/mathjax/MathJax.js?config=TeX-MML-AM_CHTML" | relURL }}"></script>
+  {{- else -}}
+    <script async src="https://cdn.jsdelivr.net/npm/mathjax@2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"  integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script>
+  {{- end }}
+{{- end }}
 
 {{ if in .Params.Libraries "msc" }}
   <script defer src="{{ $js.webfont.url }}"></script>
