@@ -553,10 +553,12 @@
 
 
   // ========================== search ==========================
-    {{ $baseurl:= $.Site.BaseURL }}
+    {{ $baseurl := $.Site.BaseURL }}
     var baseurl = JSON.parse({{ $baseurl | jsonify }});
-    {{ $permalink:= .Permalink }}
+    {{ $permalink := .Permalink }}
     var permalink = JSON.parse({{ $permalink | jsonify }});
+    {{ $langprefix := $.Site.LanguagePrefix }}
+    var langprefix = JSON.parse({{ $langprefix | jsonify }});
     var searchResults = null;
     var searchMenu = null;
     var searchText = null;
@@ -569,13 +571,20 @@
     var searchResultPosition = JSON.parse({{ $searchResultPosition | jsonify }});
     {{ $sectionType := .Type }}
     var sectionType = JSON.parse({{ $sectionType | jsonify }});
-
-    var fuse = null;
+    {{ $kind := .Kind }}
+    var kind = JSON.parse({{ $kind | jsonify }});
     
+    var fuse = null;
+
     if (enableSearch) {
       (function initFuse() {
         var xhr = new XMLHttpRequest();
-        xhr.open('GET', baseurl + "/index.json");
+        if (sectionType === "publication" && kind !== "page") {
+          xhr.open('GET', permalink + "index.json");
+        } else {
+          xhr.open('GET', baseurl + langprefix + "/index.json");
+        }
+        
         xhr.setRequestHeader('Content-Type', 'application/json; charset=utf-8');
         xhr.onload = function () {
           if (xhr.status === 200) {
